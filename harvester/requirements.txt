@@ -11,7 +11,7 @@ GDAL==2.4.2
 geopandas==0.7.0
 jmespath==0.9.5
 munch==2.5.0
-numpy==1.18.2
+numpy==1.20.2
 pandas==1.0.3
 psycopg2==2.8.4
 pyproj==2.6.0
