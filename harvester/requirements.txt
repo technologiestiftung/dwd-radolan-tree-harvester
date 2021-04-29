@@ -6,7 +6,7 @@ click-plugins==1.1.1
 cligj==0.5.0
 DateTime==4.3
 docutils==0.15.2
-Fiona==1.8.13.post1
+Fiona==1.8.19
 GDAL==2.4.2
 geopandas==0.7.0
 jmespath==0.9.5
