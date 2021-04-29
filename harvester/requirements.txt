@@ -13,7 +13,7 @@ jmespath==0.9.5
 munch==2.5.0
 numpy==1.18.2
 pandas==1.0.3
-psycopg2==2.8.4
+psycopg2==2.8.6
 pyproj==2.6.0
 python-dateutil==2.8.1
 python-dotenv==0.12.0
