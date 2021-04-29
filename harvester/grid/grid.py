@@ -1,15 +1,19 @@
+""" This script creates a grid of polygons for the area of interest. Current precipitation data can then be assigned to these cells using the harvester.py script.
+
+Input:
+    buffer.shp: Shapefile containing the outline of the area of interest as a polygon
+    grid.asc: An example raster file conatining precipitation data for whole Germany
+"""
+
 import sys
 import os
 import logging
-import gzip
-import shutil
 import psycopg2
 import psycopg2.extras
 import geopandas
 import subprocess
 import numpy
 import linecache
-import glob
 from shapely.wkt import dumps
 from dotenv import load_dotenv
 load_dotenv()
@@ -17,7 +21,7 @@ load_dotenv()
 logging.basicConfig()
 logging.root.setLevel(logging.INFO)
 
-# temp folder
+# name of folder that contains the data
 temp = "temp"
 # if os.path.isdir(temp) != True:
 #   os.mkdir(temp)
@@ -70,14 +74,18 @@ header = linecache.getline(temp + "/grid.asc", 1) + \
 
 numpy.savetxt(temp + "/grid-transform.asc", asc_data,
               header=header.rstrip(), comments='', fmt='%i')
-# TODO: [GDK-128] Explain what gdalwarp is doing here. How could this be done for e.g. Köln
-cmdline = ['gdalwarp', temp + "/grid-transform.asc", temp + "/grid-berlin.asc", "-s_srs", "+proj=stere +lon_0=10.0 +lat_0=90.0 +lat_ts=60.0 +a=6370040 +b=6370040 +units=m",
+
+# use gdalwarp as commandline tool to crop the example weather dataset to the outline of our area of interest that is defined by the file buffer.shp
+# with the arguments -s_srs and -t-srs we set the spatial reference systems for the source and the target files
+# for our example weather data the srs is: "+proj=stere +lon_0=10.0 +lat_0=90.0 +lat_ts=60.0 +a=6370040 +b=6370040 +units=m"
+cmdline = ['gdalwarp', temp + "/grid-transform.asc", temp + "/grid-buffer.asc", "-s_srs", "+proj=stere +lon_0=10.0 +lat_0=90.0 +lat_ts=60.0 +a=6370040 +b=6370040 +units=m",
            "-t_srs", "+proj=stere +lon_0=10.0 +lat_0=90.0 +lat_ts=60.0 +a=6370040 +b=6370040 +units=m", "-r", "near", "-of", "GTiff", "-cutline", "buffer.shp"]
 subprocess.call(cmdline)
-# TODO: [GDK-129] Explain what gdal_polygonize.py is doing here. How could this be done for e.g. Köln
+
+# use gdal_polygonize to transform the grid into a vector. a polygon is created for each pixel in our area of interest with a unique ID (MYFLD). these polygons form our grid and are saved in a shapefile. 
 cmdline = [
     "gdal_polygonize.py",
-    temp + "/grid-berlin.asc",
+    temp + "/grid-buffer.asc",
     "-f", "ESRI Shapefile",
     temp + "/grid.shp",
     "temp",
