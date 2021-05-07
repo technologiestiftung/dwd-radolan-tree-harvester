@@ -1,7 +1,7 @@
 provider "aws" {
   profile = "${var.profile}"
   region = "${var.region}"
-  version = "~> 2.55"
+  version = "~> 3.39.0"
 }
 # data "aws_vpc" "vpc" {
 #   id = "${var.vpc_id}"
